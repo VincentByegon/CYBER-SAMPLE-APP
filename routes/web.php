@@ -30,7 +30,7 @@ Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'verified','approved'])->group(function () {
     Route::get('/approval-wait', [\App\Http\Controllers\ApprovalController::class, 'wait'])->name('approval.wait');
     // Admin user management
     Route::get('/admin/users', [\App\Http\Controllers\AdminUserController::class, 'index'])->name('admin.users.index');
