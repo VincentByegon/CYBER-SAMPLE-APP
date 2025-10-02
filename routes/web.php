@@ -21,16 +21,17 @@ use App\Livewire\Credit\CreditApplications;
 use App\Livewire\Invoices\MonthlyInvoiceIndex;
 use App\Livewire\Invoices\CreateMonthlyInvoice;
 use App\Livewire\Invoices\ShowMonthlyInvoice;
+use App\Http\Middleware\EnsureUserIsApproved;
 
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
 Route::view('dashboard', 'dashboard')
-    ->middleware(['auth'])
+    ->middleware(['auth',EnsureUserIsApproved::class])
     ->name('dashboard');
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth',EnsureUserIsApproved::class])->group(function () {
     Route::get('/approval-wait', [\App\Http\Controllers\ApprovalController::class, 'wait'])->name('approval.wait');
     // Admin user management
     Route::get('/admin/users', [\App\Http\Controllers\AdminUserController::class, 'index'])->name('admin.users.index');
