@@ -22,6 +22,7 @@ class CreateOrder extends Component
     public $customers;
     public $services;
      public $reference_number='';
+    public  $reference = null;
 
     protected $rules = [
         //'customer_id' => 'required|exists:customers,id',
@@ -188,12 +189,23 @@ class CreateOrder extends Component
             $ledgerService = new LedgerService();
             $ledgerService->applyPaymentFIFO($customer, $payment);
             }  */
+            
+
+if ($this->payment_mode === 'cash') {
+    $reference = 'CASH-' . strtoupper(Str::random(6));
+} elseif ($this->payment_mode === 'mpesa') {
+    // Example: generate M-Pesa style reference
+    $reference = 'MPESA-' . strtoupper(Str::random(8));
+} else {
+    // fallback if other payment methods in future
+    $reference = strtoupper(Str::random(10));
+}
             if ($paid > 0 && class_exists(\App\Models\Payment::class)) {
     $payment = \App\Models\Payment::create([
         'order_id' => $order->id,
        'customer_id'   => $this->customer_id ?: null, // null for walk-ins
         'amount' => $paid,
-        'reference_number' => 'CASH-' . strtoupper(Str::random(6)),
+        'reference_number' =>$reference,
         'payment_method' => $this->payment_mode,
         'payment_date'=> now(),
         'notes' => 'Payment on order creation',
