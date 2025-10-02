@@ -27,12 +27,11 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-Route::view('dashboard', 'dashboard')
-    ->middleware(['auth',EnsureUserIsApproved::class])
-    ->name('dashboard');
+
   Route::get('/approval-wait', [\App\Http\Controllers\ApprovalController::class, 'wait'])->name('approval.wait');
 Route::middleware(['auth',EnsureUserIsApproved::class])->group(function () {
-  
+  Route::view('dashboard', 'dashboard')
+    ->name('dashboard');
     // Admin user management
     Route::get('/admin/users', [\App\Http\Controllers\AdminUserController::class, 'index'])->name('admin.users.index');
     Route::post('/admin/users/{id}/approve', [\App\Http\Controllers\AdminUserController::class, 'approve'])->name('admin.users.approve');
