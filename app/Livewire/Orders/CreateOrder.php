@@ -195,6 +195,7 @@ class CreateOrder extends Component
         'amount' => $paid,
         'reference_number' => 'CASH-' . strtoupper(Str::random(6)),
         'payment_method' => $this->payment_mode,
+        'payment_date'=> now(),
         'notes' => 'Payment on order creation',
     ]);
 
