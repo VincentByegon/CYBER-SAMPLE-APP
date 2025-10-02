@@ -10,9 +10,14 @@ class EnsureUserIsApproved
 {
     public function handle(Request $request, Closure $next)
     {
+       // If user is logged in but not approved
         if (Auth::check() && !Auth::user()->approved) {
-            return redirect()->route('approval.wait');
+            // Avoid redirect loop if already on approval page or logging out
+            if (! $request->routeIs('approval.wait') && ! $request->routeIs('logout')) {
+                return redirect()->route('approval.wait');
+            }
         }
+
         return $next($request);
     }
 }
