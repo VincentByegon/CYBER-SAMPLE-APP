@@ -16,6 +16,7 @@ class MpesaCallbackController extends Controller
      */
     public function validation(Request $request)
     {
+
         Log::info('M-Pesa Validation Callback:', $request->all());
 
         // Always accept validation for Buy Goods/Till payments
@@ -31,6 +32,7 @@ class MpesaCallbackController extends Controller
     public function confirmation(Request $request)
     {
         $data = $request->all();
+        dd($data);
         Log::info('M-Pesa Confirmation Callback:', $data);
 
         try {
