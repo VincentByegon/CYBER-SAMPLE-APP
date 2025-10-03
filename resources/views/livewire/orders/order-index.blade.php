@@ -17,7 +17,7 @@
                 </div>
                 <div>
                     <p class="text-sm font-medium text-gray-400">Walk-in Customers</p>
-                    <p class="text-2xl font-bold text-[#EDEDEC]">{{ $orders->where('customer.type', 'walk_in')->count() }}</p>
+                    <p class="text-2xl font-bold text-[#EDEDEC]">{{ $orders->where('customer.type', '')->count() }}</p>
                 </div>
             </div>
         </div>
