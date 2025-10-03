@@ -11,73 +11,76 @@ use Illuminate\Support\Facades\DB;
 
 class MpesaCallbackController extends Controller
 {
-    public function callback(Request $request)
+    /**
+     * Handle validation request from Safaricom
+     */
+    public function validation(Request $request)
+    {
+        Log::info('M-Pesa Validation Callback:', $request->all());
+
+        // Always accept validation for Buy Goods
+        return response()->json([
+            'ResultCode' => 0,
+            'ResultDesc' => 'Accepted'
+        ]);
+    }
+
+    /**
+     * Handle confirmation request from Safaricom
+     */
+    public function confirmation(Request $request)
     {
         $data = $request->all();
-        Log::info('M-Pesa Callback Received', $data);
+        Log::info('M-Pesa Confirmation Callback:', $data);
 
         try {
-            $stkCallback = $data['Body']['stkCallback'];
-            $checkoutRequestId = $stkCallback['CheckoutRequestID'];
-            $resultCode = $stkCallback['ResultCode'];
+            DB::transaction(function () use ($data) {
+                $transactionId = $data['TransID'];
+                $amount        = $data['TransAmount'];
+                $phone         = $data['MSISDN'];
+                $firstName     = $data['FirstName'] ?? '';
+                $middleName    = $data['MiddleName'] ?? '';
+                $lastName      = $data['LastName'] ?? '';
+                $account       = $data['BillRefNumber'] ?? null;
 
-            // Find the pending payment
-            $payment = Payment::where('reference_number', $checkoutRequestId)
-                             ->where('payment_method', 'mpesa')
-                             ->first();
+                // 1. Find or create customer
+                $customer = Customer::firstOrCreate(
+                    ['phone' => $phone],
+                    ['name' => trim($firstName . ' ' . $middleName . ' ' . $lastName)]
+                );
 
-            if (!$payment) {
-                Log::error('Payment not found for CheckoutRequestID: ' . $checkoutRequestId);
-                return response()->json(['status' => 'error', 'message' => 'Payment not found']);
-            }
+                // 2. Create a payment record
+                $payment = Payment::create([
+                    'customer_id'      => $customer->id,
+                    'amount'           => $amount,
+                    'payment_method'   => 'mpesa',
+                    'reference_number' => $transactionId,
+                    'notes'            => 'Payment via M-Pesa Till (' . $account . ')'
+                ]);
 
-            if ($resultCode == 0) {
-                // Payment successful
-                $callbackMetadata = $stkCallback['CallbackMetadata']['Item'];
-                $mpesaReceiptNumber = '';
-                $phoneNumber = '';
+                // 3. Apply payment to customer’s pending orders (FIFO)
+                $ledgerService = new LedgerService();
+                $ledgerService->applyPaymentFIFO($customer, $payment);
 
-                foreach ($callbackMetadata as $item) {
-                    if ($item['Name'] == 'MpesaReceiptNumber') {
-                        $mpesaReceiptNumber = $item['Value'];
-                    }
-                    if ($item['Name'] == 'PhoneNumber') {
-                        $phoneNumber = $item['Value'];
-                    }
-                }
-
-                DB::transaction(function () use ($payment, $mpesaReceiptNumber) {
-                    // Update payment with M-Pesa receipt number
-                    $payment->update([
-                        'reference_number' => $mpesaReceiptNumber,
-                        'notes' => ($payment->notes ?? '') . ' | M-Pesa Receipt: ' . $mpesaReceiptNumber
-                    ]);
-
-                    // Apply payment using FIFO logic
-                    $customer = $payment->customer;
-                    $ledgerService = new LedgerService();
-                    $ledgerService->applyPaymentFIFO($customer, $payment);
-                });
-
-                Log::info('M-Pesa payment processed successfully', [
+                Log::info('M-Pesa Payment recorded successfully', [
                     'payment_id' => $payment->id,
-                    'receipt' => $mpesaReceiptNumber
+                    'receipt'    => $transactionId,
+                    'customer'   => $customer->id
                 ]);
+            });
 
-            } else {
-                // Payment failed
-                $payment->delete(); // Remove the pending payment
-                Log::info('M-Pesa payment failed', [
-                    'checkout_request_id' => $checkoutRequestId,
-                    'result_code' => $resultCode
-                ]);
-            }
-
-            return response()->json(['status' => 'success']);
+            return response()->json([
+                'ResultCode' => 0,
+                'ResultDesc' => 'Accepted'
+            ]);
 
         } catch (\Exception $e) {
-            Log::error('M-Pesa Callback Error: ' . $e->getMessage(), $data);
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+            Log::error('M-Pesa Confirmation Error: ' . $e->getMessage(), $data);
+
+            return response()->json([
+                'ResultCode' => 1,
+                'ResultDesc' => 'Failed: ' . $e->getMessage()
+            ]);
         }
     }
 }

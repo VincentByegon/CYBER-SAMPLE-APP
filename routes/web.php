@@ -22,7 +22,8 @@ use App\Livewire\Invoices\MonthlyInvoiceIndex;
 use App\Livewire\Invoices\CreateMonthlyInvoice;
 use App\Livewire\Invoices\ShowMonthlyInvoice;
 use App\Http\Middleware\EnsureUserIsApproved;
-
+use App\Http\Controllers\MpesaCallbackController;
+use App\Livewire\Mpesa\MpesaTransactions;
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
@@ -91,6 +92,11 @@ Route::get('/invoices/monthly', function (\Illuminate\Http\Request $request) {
     Route::get('/monthly-invoices/{monthlyInvoice}', ShowMonthlyInvoice::class)->name('monthly-invoices.show');
     // PDF route stays the same
    Route::get('/monthly-invoices/{id}/pdf', [\App\Http\Controllers\MonthlyInvoicePdfController::class, 'show'])->name('monthly-invoices.pdf'); 
+
+   Route::post('/mpesa/validation', [MpesaCallbackController::class, 'validation']);
+Route::post('/mpesa/confirmation', [MpesaCallbackController::class, 'confirmation']);
+ Route::get('/mpesa/transactions', MpesaTransactions::class)
+         ->name('mpesa.transactions');
 });
 
 require __DIR__.'/auth.php';
