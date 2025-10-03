@@ -7,35 +7,23 @@ use Illuminate\Support\Facades\Http;
 
 class RegisterMpesaUrls extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'mpesa:register-c2b-urls';
+       protected $signature = 'mpesa:simulate-c2b 
+        {amount=10} 
+        {phone=254700000000} 
+        {billRef?}';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Register C2B M-Pesa confirmation & validation URLs';
+    protected $description = 'Simulate a C2B transaction in M-Pesa sandbox';
 
-    /**
-     * Execute the console command.
-     */
     public function handle()
     {
-        $this->info('Registering C2B M-Pesa URLs...');
+        $this->info('Simulating C2B transaction...');
 
-        $consumerKey     = config('mpesa.consumer_key');
-        $consumerSecret  = config('mpesa.consumer_secret');
-        $shortcode       = config('mpesa.shortcode'); // Your Till/Paybill
-        $validationUrl   = config('mpesa.validation_url');
-        $confirmationUrl = config('mpesa.confirmation_url');
-        $baseUrl         = config('mpesa.base_url', 'https://sandbox.safaricom.co.ke');
+        $consumerKey    = config('mpesa.consumer_key');
+        $consumerSecret = config('mpesa.consumer_secret');
+        $shortcode      = config('mpesa.shortcode');
+        $baseUrl        = config('mpesa.base_url', 'https://sandbox.safaricom.co.ke');
 
-        // 1. Get Access Token
+        // Access token
         $response = Http::withBasicAuth($consumerKey, $consumerSecret)
             ->get($baseUrl . '/oauth/v1/generate?grant_type=client_credentials');
 
@@ -46,20 +34,29 @@ class RegisterMpesaUrls extends Command
 
         $accessToken = $response->json()['access_token'];
 
-        // 2. Register URLs
-        $registerResponse = Http::withToken($accessToken)
-            ->post($baseUrl . '/mpesa/c2b/v1/registerurl', [
-                'ShortCode'      => $shortcode,
-                'ResponseType'   => 'Completed', // Completed or Cancelled
-                'ConfirmationURL'=> $confirmationUrl,
-                'ValidationURL'  => $validationUrl,
-            ]);
+        // Decide CommandID
+        $commandId = (strlen($shortcode) == 6 && str_starts_with($shortcode, '600'))
+            ? 'CustomerPayBillOnline'   // PayBill shortcode
+            : 'CustomerBuyGoodsOnline'; // Till number
 
-        if ($registerResponse->successful()) {
-            $this->info('✅ M-Pesa C2B URLs registered successfully!');
-            $this->line(json_encode($registerResponse->json(), JSON_PRETTY_PRINT));
+        $simulateData = [
+            "ShortCode"     => $shortcode,
+            "CommandID"     => $commandId,
+            "Amount"        => $this->argument('amount'),
+            "Msisdn"        => $this->argument('phone'),
+            "BillRefNumber" => $this->argument('billRef') ?? 'ACC' . rand(1000, 9999),
+        ];
+
+        // Post to Safaricom
+        $simulateResponse = Http::withToken($accessToken)
+            ->post($baseUrl . '/mpesa/c2b/v1/simulate', $simulateData);
+
+        if ($simulateResponse->successful()) {
+            $this->info('✅ C2B Simulation Successful!');
+            $this->line(json_encode($simulateResponse->json(), JSON_PRETTY_PRINT));
         } else {
-            $this->error('❌ Failed to register URLs: ' . $registerResponse->body());
+            $this->error('❌ Failed: ' . $simulateResponse->body());
         }
     }
+
 }
