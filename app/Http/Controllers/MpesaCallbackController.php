@@ -1,17 +1,44 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Payment;
 use App\Models\Customer;
 use App\Services\LedgerService;
 use Illuminate\Http\Request;
+use App\Services\MpesaService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
 class MpesaCallbackController extends Controller
 {
-       /**
+    /**
+     * Register URLs via HTTP (optional, for browser/API trigger).
+     */
+    public function registerUrls()
+    {
+        try {
+            $mpesaService = new MpesaService();
+            $response = $mpesaService->registerUrls();
+
+            Log::info('✅ M-Pesa URLs registered successfully', ['response' => $response]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'M-Pesa URLs registered successfully.',
+                'response' => $response
+            ]);
+        } catch (\Exception $e) {
+            Log::error('❌ M-Pesa URL Registration Error: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to register M-Pesa URLs.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Validation URL (called BEFORE money is deducted).
      */
     public function validation(Request $request)
@@ -20,7 +47,7 @@ class MpesaCallbackController extends Controller
         Log::info('📥 M-Pesa Validation Callback:', $data);
 
         try {
-            $account =  substr('REF-' . strtoupper(uniqid()), 0, 20);
+            $account = substr('REF-' . strtoupper(uniqid()), 0, 20);
 
             // Always accept the payment (unless you want to reject certain accounts)
             return response()->json([
@@ -106,5 +133,4 @@ class MpesaCallbackController extends Controller
             ]);
         }
     }
-
 }

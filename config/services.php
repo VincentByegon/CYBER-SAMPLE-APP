@@ -34,5 +34,12 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
-
+'mpesa' => [
+    'consumer_key'    => env('MPESA_CONSUMER_KEY'),
+    'consumer_secret' => env('MPESA_CONSUMER_SECRET'),
+    'shortcode'       => env('MPESA_SHORTCODE'),
+    'validation_url'  => env('MPESA_VALIDATION_URL'),
+    'confirmation_url'=> env('MPESA_CONFIRMATION_URL'),
+    'base_url'        => env('MPESA_BASE_URL', 'https://sandbox.safaricom.co.ke'),
+],
 ];
