@@ -41,7 +41,7 @@ class MpesaCallbackController extends Controller
                 $firstName     = $data['FirstName'] ?? '';
                 $middleName    = $data['MiddleName'] ?? '';
                 $lastName      = $data['LastName'] ?? '';
-                $account       = $data['BillRefNumber'] ?? 'N/A';
+                $account       = $data['BillRefNumber'] ?? ('REF-' . strtoupper(uniqid()));
 
                 // Build customer full name
                 $fullName = trim(implode(' ', array_filter([$firstName, $middleName, $lastName])));
