@@ -11,29 +11,41 @@ use Illuminate\Support\Facades\DB;
 
 class MpesaCallbackController extends Controller
 {
-    /**
-     * Handle validation request from Safaricom (Buy Goods/PayBill).
+       /**
+     * Validation URL (called BEFORE money is deducted).
      */
     public function validation(Request $request)
     {
+        $data = $request->all();
+        Log::info('📥 M-Pesa Validation Callback:', $data);
 
-        Log::info('M-Pesa Validation Callback:', $request->all());
+        try {
+            $account = $data['BillRefNumber'] ?? ('REF-' . strtoupper(uniqid()));
 
-        // Always accept validation for Buy Goods/Till payments
-        return response()->json([
-            'ResultCode' => 0,
-            'ResultDesc' => 'Accepted'
-        ]);
+            // Always accept the payment (unless you want to reject certain accounts)
+            return response()->json([
+                'ResultCode'       => 0,
+                'ResultDesc'       => 'Accepted',
+                'ThirdPartyTransID'=> $account, // REQUIRED by Safaricom
+            ]);
+        } catch (\Exception $e) {
+            Log::error('❌ M-Pesa Validation Error: ' . $e->getMessage(), $data);
+
+            return response()->json([
+                'ResultCode'       => 1,
+                'ResultDesc'       => 'Rejected',
+                'ThirdPartyTransID'=> 'FAILED'
+            ]);
+        }
     }
 
     /**
-     * Handle confirmation request from Safaricom (Buy Goods/PayBill).
+     * Confirmation URL (called AFTER money is deducted).
      */
     public function confirmation(Request $request)
     {
         $data = $request->all();
-        dd($data);
-        Log::info('M-Pesa Confirmation Callback:', $data);
+        Log::info('📥 M-Pesa Confirmation Callback:', $data);
 
         try {
             DB::transaction(function () use ($data) {
@@ -54,7 +66,7 @@ class MpesaCallbackController extends Controller
                     ['name' => $fullName]
                 );
 
-                // 2. Check if this transaction already exists (idempotency)
+                // 2. Ensure this transaction is unique (idempotent)
                 if (!Payment::where('reference_number', $transactionId)->exists()) {
                     $payment = Payment::create([
                         'customer_id'      => $customer->id,
@@ -64,7 +76,7 @@ class MpesaCallbackController extends Controller
                         'notes'            => "M-Pesa Till Payment (BillRef: {$account})"
                     ]);
 
-                    // 3. Apply payment FIFO to unpaid orders
+                    // 3. Apply FIFO payment to pending orders
                     $ledgerService = new LedgerService();
                     $ledgerService->applyPaymentFIFO($customer, $payment);
 
@@ -85,7 +97,6 @@ class MpesaCallbackController extends Controller
                 'ResultCode' => 0,
                 'ResultDesc' => 'Accepted'
             ]);
-
         } catch (\Exception $e) {
             Log::error('❌ M-Pesa Confirmation Error: ' . $e->getMessage(), $data);
 
@@ -95,4 +106,5 @@ class MpesaCallbackController extends Controller
             ]);
         }
     }
+
 }
