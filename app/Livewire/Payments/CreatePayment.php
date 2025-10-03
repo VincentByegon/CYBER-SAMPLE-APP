@@ -49,6 +49,17 @@ class CreatePayment extends Component
             $this->reference_number = '';
         }
     }
+    
+    public function updatedPaymentMethod($value)
+    {
+        if ($value === 'cash') {
+            $this->reference_number = 'CASH-' . strtoupper(Str::random(6));
+        } elseif ($value === 'mpesa') {
+            $this->reference_number = 'MPESA-' . strtoupper(Str::random(6));
+        } else {
+            $this->reference_number = '';
+        }
+    }
 
     public function updatedCustomerId()
     {
