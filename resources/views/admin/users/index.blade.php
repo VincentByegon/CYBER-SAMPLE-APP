@@ -137,7 +137,7 @@
                     </div>
                 </div>
             </div>
-            <div class="bg-white dark:bg-gray-800 dark:text-white rounded-lg shadow overflow-hidden">
+            <div class="bg-white dark:bg-gray-800 dark:text-white rounded-lg shadow overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-700 bg-white dark:bg-gray-800 dark:text-white">
                     <thead class="bg-gray-700 dark:bg-gray-800 dark:text-white">
                         <tr>
