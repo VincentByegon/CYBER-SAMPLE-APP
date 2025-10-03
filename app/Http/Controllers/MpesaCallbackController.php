@@ -20,7 +20,7 @@ class MpesaCallbackController extends Controller
         Log::info('📥 M-Pesa Validation Callback:', $data);
 
         try {
-            $account = $data['BillRefNumber'] ?? ('REF-' . strtoupper(uniqid()));
+            $account =  substr('REF-' . strtoupper(uniqid()), 0, 20);
 
             // Always accept the payment (unless you want to reject certain accounts)
             return response()->json([
@@ -55,7 +55,7 @@ class MpesaCallbackController extends Controller
                 $firstName     = $data['FirstName'] ?? '';
                 $middleName    = $data['MiddleName'] ?? '';
                 $lastName      = $data['LastName'] ?? '';
-                $account       = $data['BillRefNumber'] ?? ('REF-' . strtoupper(uniqid()));
+                $account       = substr('REF-' . strtoupper(uniqid()), 0, 20);
 
                 // Build customer full name
                 $fullName = trim(implode(' ', array_filter([$firstName, $middleName, $lastName])));
