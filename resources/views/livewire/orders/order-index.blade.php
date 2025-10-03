@@ -31,7 +31,7 @@
                 </div>
                 <div>
                     <p class="text-sm font-medium text-gray-400">Credit Customers</p>
-                    <p class="text-2xl font-bold text-[#EDEDEC]">{{ $orders->where('customer.type', 'credit')->count() }}</p>
+                    <p class="text-2xl font-bold text-[#EDEDEC]">{{ $orders->where('customer.type', 'individual')->count() }}</p>
                 </div>
             </div>
         </div>
