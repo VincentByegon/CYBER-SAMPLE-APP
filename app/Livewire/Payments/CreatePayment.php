@@ -40,7 +40,14 @@ class CreatePayment extends Component
     {
         $this->customers = Customer::where('is_active', true)->orderBy('name')->get();
         $this->payment_date = now()->format('Y-m-d\TH:i');
-        $this->reference_number = 'CASH-' . strtoupper(Str::random(6));
+         // Set reference number only for cash or mpesa
+        if ($this->payment_method === 'cash') {
+            $this->reference_number = 'CASH-' . strtoupper(Str::random(6));
+        } elseif ($this->payment_method === 'mpesa') {
+            $this->reference_number = 'MPESA-' . strtoupper(Str::random(6));
+        } else {
+            $this->reference_number = '';
+        }
     }
 
     public function updatedCustomerId()
@@ -72,14 +79,14 @@ class CreatePayment extends Component
     {
         $this->validate();
 
-        if ($this->payment_method === 'mpesa') {
+       /*  if ($this->payment_method === 'mpesa') {
             return $this->processMpesaPayment();
-        }
+        } */
 
         return $this->processDirectPayment();
     }
 
-    private function processMpesaPayment()
+    /* private function processMpesaPayment()
     {
         try {
             $mpesaService = new MpesaService();
@@ -110,7 +117,7 @@ class CreatePayment extends Component
             session()->flash('error', 'M-Pesa payment failed: ' . $e->getMessage());
         }
     }
-
+ */
     private function processDirectPayment()
     {
         DB::transaction(function () {

@@ -45,24 +45,19 @@
                     <select wire:model.live="payment_method" class="w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 rounded-lg px-3 py-2">
                         <option value="cash">Cash</option>
                         <option value="mpesa">M-Pesa</option>
-                        <option value="bank_transfer">Bank Transfer</option>
-                        <option value="credit">Credit</option>
                     </select>
                     @error('payment_method') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                 </div>
 
-                @if($payment_method === 'mpesa')
+                 @if($payment_method === 'mpesa' || $payment_method === 'cash')
                     <div>
-                        <label class="block text-sm font-medium dark:text-white text-gray-700 mb-1">Phone Number *</label>
-                        <input type="text" wire:model="phone_number" placeholder="0712345678" class="w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 rounded-lg px-3 py-2">
-                        @error('phone_number') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                        <p class="text-xs text-gray-500 dark:text-[#EDEDEC] mt-1">Enter phone number for M-Pesa STK push</p>
-                    </div>
-                @endif
-
-                @if($payment_method !== 'mpesa')
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-[#EDEDEC] mb-1">Reference Number</label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-[#EDEDEC] mb-1">
+                            @if($payment_method === 'mpesa')
+                                M-Pesa Reference Number
+                            @else
+                                Cash Reference Number
+                            @endif
+                        </label>
                         <input type="text" wire:model="reference_number" class="w-full border border-gray-300 rounded-lg px-3 py-2">
                         @error('reference_number') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                     </div>
