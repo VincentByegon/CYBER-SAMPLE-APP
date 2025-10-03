@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('mpesa_transactions', function (Blueprint $table) {
-   table->id();
+   $table->id();
     $table->string('transaction_id')->unique();
     $table->decimal('amount', 10, 2);
     $table->string('phone');
