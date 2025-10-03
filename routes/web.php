@@ -23,7 +23,7 @@ use App\Livewire\Invoices\CreateMonthlyInvoice;
 use App\Livewire\Invoices\ShowMonthlyInvoice;
 use App\Http\Middleware\EnsureUserIsApproved;
 use App\Http\Controllers\MpesaCallbackController;
-use App\Livewire\Mpesa\MpesaTransactions;
+use App\Livewire\MpesaTransactions;
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
