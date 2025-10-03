@@ -12,13 +12,13 @@ use Illuminate\Support\Facades\DB;
 class MpesaCallbackController extends Controller
 {
     /**
-     * Handle validation request from Safaricom
+     * Handle validation request from Safaricom (Buy Goods/PayBill).
      */
     public function validation(Request $request)
     {
         Log::info('M-Pesa Validation Callback:', $request->all());
 
-        // Always accept validation for Buy Goods
+        // Always accept validation for Buy Goods/Till payments
         return response()->json([
             'ResultCode' => 0,
             'ResultDesc' => 'Accepted'
@@ -26,7 +26,7 @@ class MpesaCallbackController extends Controller
     }
 
     /**
-     * Handle confirmation request from Safaricom
+     * Handle confirmation request from Safaricom (Buy Goods/PayBill).
      */
     public function confirmation(Request $request)
     {
@@ -35,38 +35,48 @@ class MpesaCallbackController extends Controller
 
         try {
             DB::transaction(function () use ($data) {
-                $transactionId = $data['TransID'];
-                $amount        = $data['TransAmount'];
-                $phone         = $data['MSISDN'];
+                $transactionId = $data['TransID'] ?? null;
+                $amount        = $data['TransAmount'] ?? 0;
+                $phone         = $data['MSISDN'] ?? null;
                 $firstName     = $data['FirstName'] ?? '';
                 $middleName    = $data['MiddleName'] ?? '';
                 $lastName      = $data['LastName'] ?? '';
-                $account       = $data['BillRefNumber'] ?? null;
+                $account       = $data['BillRefNumber'] ?? 'N/A';
 
-                // 1. Find or create customer
+                // Build customer full name
+                $fullName = trim(implode(' ', array_filter([$firstName, $middleName, $lastName])));
+
+                // 1. Find or create customer by phone number
                 $customer = Customer::firstOrCreate(
                     ['phone' => $phone],
-                    ['name' => trim($firstName . ' ' . $middleName . ' ' . $lastName)]
+                    ['name' => $fullName]
                 );
 
-                // 2. Create a payment record
-                $payment = Payment::create([
-                    'customer_id'      => $customer->id,
-                    'amount'           => $amount,
-                    'payment_method'   => 'mpesa',
-                    'reference_number' => $transactionId,
-                    'notes'            => 'Payment via M-Pesa Till (' . $account . ')'
-                ]);
+                // 2. Check if this transaction already exists (idempotency)
+                if (!Payment::where('reference_number', $transactionId)->exists()) {
+                    $payment = Payment::create([
+                        'customer_id'      => $customer->id,
+                        'amount'           => $amount,
+                        'payment_method'   => 'mpesa',
+                        'reference_number' => $transactionId,
+                        'notes'            => "M-Pesa Till Payment (BillRef: {$account})"
+                    ]);
 
-                // 3. Apply payment to customer’s pending orders (FIFO)
-                $ledgerService = new LedgerService();
-                $ledgerService->applyPaymentFIFO($customer, $payment);
+                    // 3. Apply payment FIFO to unpaid orders
+                    $ledgerService = new LedgerService();
+                    $ledgerService->applyPaymentFIFO($customer, $payment);
 
-                Log::info('M-Pesa Payment recorded successfully', [
-                    'payment_id' => $payment->id,
-                    'receipt'    => $transactionId,
-                    'customer'   => $customer->id
-                ]);
+                    Log::info('✅ M-Pesa Payment recorded successfully', [
+                        'payment_id' => $payment->id,
+                        'receipt'    => $transactionId,
+                        'customer'   => $customer->id,
+                        'amount'     => $amount
+                    ]);
+                } else {
+                    Log::warning("⚠️ Duplicate M-Pesa Transaction ignored", [
+                        'TransID' => $transactionId
+                    ]);
+                }
             });
 
             return response()->json([
@@ -75,7 +85,7 @@ class MpesaCallbackController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            Log::error('M-Pesa Confirmation Error: ' . $e->getMessage(), $data);
+            Log::error('❌ M-Pesa Confirmation Error: ' . $e->getMessage(), $data);
 
             return response()->json([
                 'ResultCode' => 1,
