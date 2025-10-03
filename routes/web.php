@@ -93,10 +93,10 @@ Route::get('/invoices/monthly', function (\Illuminate\Http\Request $request) {
     // PDF route stays the same
    Route::get('/monthly-invoices/{id}/pdf', [\App\Http\Controllers\MonthlyInvoicePdfController::class, 'show'])->name('monthly-invoices.pdf'); 
 
-   Route::post('/validation', [MpesaCallbackController::class, 'validation']);
-Route::post('/confirmation', [MpesaCallbackController::class, 'confirmation']);
+
  Route::get('/mpesa/transactions', MpesaTransactions::class)
          ->name('mpesa.transactions');
 });
-
+   Route::post('/validation', [MpesaCallbackController::class, 'validation']);
+Route::post('/confirmation', [MpesaCallbackController::class, 'confirmation']);
 require __DIR__.'/auth.php';
