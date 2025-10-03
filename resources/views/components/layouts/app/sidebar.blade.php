@@ -40,6 +40,9 @@
     <flux:navlist.item icon="shopping-cart" :href="route('credit.applications')" :current="request()->routeIs('credit.*')" wire:navigate>
         {{ __('Credit') }}
     </flux:navlist.item>
+    <flux:navlist.item icon="shopping-cart" :href="route('mpesa.transactions')" :current="request()->routeIs('mpesa.*')" wire:navigate>
+        {{ __('Mpesa Transactions') }}
+    </flux:navlist.item>
 
     @if(auth()->user() && auth()->user()->admin)
         <flux:navlist.item icon="shield-check" :href="route('admin.users.index')" :current="request()->routeIs('admin.users.*')" wire:navigate>
