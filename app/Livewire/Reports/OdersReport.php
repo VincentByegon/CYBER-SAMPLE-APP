@@ -27,6 +27,6 @@ class OrdersReport extends Component
 
     public function render()
     {
-        return view('livewire.reports.oders-report');
+        return view('livewire.reports.orders-report');
     }
 }
