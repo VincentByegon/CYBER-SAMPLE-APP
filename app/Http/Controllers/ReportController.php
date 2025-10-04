@@ -5,7 +5,7 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use Barryvdh\DomPDF\Facade\Pdf;
 
-class OrdersReportController extends Controller
+class ReportController extends Controller
 {
     public function pdf(Request $request)
     {
