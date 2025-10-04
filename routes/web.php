@@ -103,7 +103,7 @@ Route::get('/invoices/monthly', function (\Illuminate\Http\Request $request) {
 
 Route::get('/reports/orders/pdf', [OrdersReportController::class, 'pdf'])->name('reports.orders.pdf');
 
-Route::get('/reports/orders/pdf', [OrdersReport::class, 'ordersReport'])->name('reports.orders.pdf');
+Route::get('/reports/orders', OrdersReport::class)->name('reports.orders');
 });
    Route::post('/validation', [MpesaCallbackController::class, 'validation']);
 Route::post('/confirmation', [MpesaCallbackController::class, 'confirmation']);

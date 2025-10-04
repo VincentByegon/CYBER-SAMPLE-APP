@@ -22,7 +22,7 @@ class ReportController extends Controller
             'email' => 'Business Email',
         ];
 
-        $pdf = Pdf::loadView('livewire.reports.oders-reports-pdf', compact('orders', 'total', 'business', 'start', 'end'));
+        $pdf = Pdf::loadView('livewire.reports.orders-reports-pdf', compact('orders', 'total', 'business', 'start', 'end'));
         return $pdf->download('orders_report.pdf');
     }
 }
