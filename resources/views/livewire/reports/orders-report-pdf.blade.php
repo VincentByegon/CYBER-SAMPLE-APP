@@ -149,7 +149,7 @@
             @foreach($orders as $i => $order)
             <tr>
                 <td>{{ $i + 1 }}</td>
-                <td>{{ $order->customer->name }}</td>
+                <td>{{ $order->customer->name??'N/A' }}</td>
                 <td>{{ $order->order_number ?? $order->id }}</td>
                 <td>${{ number_format($order->total_amount, 2) }}</td>
                 <td>{{ ucfirst($order->status) }}</td>
