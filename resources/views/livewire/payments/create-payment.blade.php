@@ -58,7 +58,7 @@
                                 Cash Reference Number
                             @endif
                         </label>
-                        <input type="text" wire:model="reference_number" class="w-full border border-gray-300 rounded-lg px-3 py-2" readonly>
+                        <input type="text" wire:model="reference_number" class="w-full border border-gray-300 rounded-lg px-3 py-2" readonly+>
                         @error('reference_number') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                     </div>
                 @endif

@@ -24,6 +24,8 @@ use App\Livewire\Invoices\ShowMonthlyInvoice;
 use App\Http\Middleware\EnsureUserIsApproved;
 use App\Http\Controllers\MpesaCallbackController;
 use App\Livewire\MpesaTransactions;
+use App\Livewire\Reports\OrdersReport;
+use App\Http\Controllers\OrdersReportController;
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
@@ -96,6 +98,12 @@ Route::get('/invoices/monthly', function (\Illuminate\Http\Request $request) {
 
  Route::get('/mpesa/transactions', MpesaTransactions::class)
          ->name('mpesa.transactions');
+   
+
+
+Route::get('/reports/orders/pdf', [OrdersReportController::class, 'pdf'])->name('reports.orders.pdf');
+
+Route::get('/reports/orders/pdf', [OrdersReport::class, 'ordersReport'])->name('reports.orders.pdf');
 });
    Route::post('/validation', [MpesaCallbackController::class, 'validation']);
 Route::post('/confirmation', [MpesaCallbackController::class, 'confirmation']);
