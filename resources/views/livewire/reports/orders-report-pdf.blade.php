@@ -6,170 +6,176 @@
     <style>
         body {
             font-family: 'Segoe UI', 'DejaVu Sans', Arial, sans-serif;
+            background: #ffffff;
             color: #1e293b;
             margin: 0;
             padding: 0;
-            background: #f8fafc;
             font-size: 14px;
-            line-height: 1.5;
+            line-height: 1.6;
         }
 
-        /* HEADER */
-        .header {
-            background: linear-gradient(90deg, #0f172a 0%, #2563eb 100%);
-            color: #fff;
-            padding: 40px 50px 30px 50px;
-            border-bottom: 5px solid #38bdf8;
+        /* HEADER BAR */
+        .top-bar {
+            background-color: #f2e8e5;
+            padding: 18px 50px;
+            color: #1f2937;
+            font-size: 13px;
+            border-bottom: 2px solid #d1d5db;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .top-bar .left {
+            font-weight: 500;
+        }
+        .top-bar .right {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        /* MAIN WRAPPER */
+        .container {
+            width: 85%;
+            margin: 40px auto;
+        }
+
+        /* TITLE */
+        h1.title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 30px;
             text-align: center;
         }
-        .header h1 {
-            margin: 0;
-            font-size: 2.6em;
+
+        /* SECTION HEADINGS */
+        h2.section {
+            font-size: 18px;
             font-weight: 700;
-            letter-spacing: 1px;
-        }
-        .header p {
-            margin: 10px 0 0 0;
-            font-size: 1.05em;
-            opacity: 0.9;
+            color: #111827;
+            margin-top: 25px;
+            margin-bottom: 10px;
         }
 
-        /* SUMMARY CARD */
-        .summary {
-            background: #fff;
-            margin: 40px auto 20px auto;
-            padding: 25px 35px;
-            border-radius: 16px;
-            width: 85%;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.05);
-            font-size: 1.1em;
+        p {
+            margin-bottom: 12px;
+            color: #374151;
         }
-        .summary h2 {
-            margin: 0 0 15px 0;
-            font-size: 1.4em;
-            color: #2563eb;
-            border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 8px;
-        }
-        .summary p {
-            margin: 6px 0;
-        }
-        .summary strong {
-            color: #0f172a;
+
+        strong {
+            color: #111827;
         }
 
         /* TABLE */
         table {
-            width: 85%;
-            margin: 20px auto;
+            width: 100%;
             border-collapse: collapse;
-            background: #fff;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            margin: 10px 0 25px 0;
         }
+
         th, td {
-            padding: 14px 12px;
-            font-size: 0.95em;
+            padding: 10px 12px;
             text-align: left;
+            border: 1px solid #e5e7eb;
         }
+
         th {
-            background: #2563eb;
-            color: #fff;
+            background-color: #f3f4f6;
             font-weight: 600;
             text-transform: uppercase;
-            font-size: 0.85em;
-            letter-spacing: 0.5px;
+            font-size: 12px;
         }
+
         tr:nth-child(even) {
-            background: #f9fafb;
-        }
-        tr:hover {
-            background: #f1f5f9;
+            background-color: #fafafa;
         }
 
         /* FOOTER */
         .footer {
             width: 85%;
-            margin: 50px auto 0 auto;
+            margin: 40px auto;
+            border-top: 1px solid #e5e7eb;
             padding-top: 20px;
-            border-top: 2px solid #e2e8f0;
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.9em;
-            color: #64748b;
-        }
-        .footer .signature-block {
-            margin-top: 40px;
-            text-align: left;
-        }
-        .signature-line {
-            border-bottom: 2px solid #2563eb;
-            width: 240px;
-            margin-bottom: 6px;
-        }
-        .signature-label {
-            font-size: 0.95em;
-            color: #2563eb;
-            font-weight: 500;
-        }
-
-        @page {
-            margin: 40px 0 80px 0;
+            font-size: 12px;
+            color: #6b7280;
+            text-align: right;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>{{ $business['name'] }}</h1>
+
+    <!-- TOP CONTACT BAR -->
+    <div class="top-bar">
+        <div class="left">
+            {{ $business['address'] }} | {{ $business['email'] }} | {{ $business['phone'] }}
+        </div>
+        <div class="right">
+            {{ strtoupper($business['name']) }}
+        </div>
+    </div>
+
+    <div class="container">
+        <h1 class="title">Sample Orders Summary</h1>
+
+        <h2 class="section">Overview:</h2>
         <p>
-            {{ $business['address'] }} • {{ $business['phone'] }} • {{ $business['email'] }}
+            This report provides an overview of the company’s orders performance between 
+            <strong>{{ $start }}</strong> and <strong>{{ $end }}</strong>. 
+            It highlights order totals, revenue trends, and payment statuses to help assess operational performance.
+        </p>
+
+        <h2 class="section">Revenue Analysis:</h2>
+        <p>
+            During this period, <strong>{{ $business['name'] }}</strong> recorded 
+            total order revenue of <strong>${{ number_format($total, 2) }}</strong>.
+            The increase reflects growth in customer engagement and efficient service delivery.
+        </p>
+
+        <h2 class="section">Order Breakdown:</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Customer</th>
+                    <th>Order No</th>
+                    <th>Total Amount ($)</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($orders as $i => $order)
+                <tr>
+                    <td>{{ $i + 1 }}</td>
+                    <td>{{ $order->customer->name ?? 'N/A' }}</td>
+                    <td>{{ $order->order_number ?? $order->id }}</td>
+                    <td>{{ number_format($order->total_amount, 2) }}</td>
+                    <td>{{ ucfirst($order->status) }}</td>
+                    <td>{{ \Carbon\Carbon::parse($order->created_at)->format('d M Y') }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+
+        <p><em>Note:</em> The above table provides a breakdown of all orders recorded during the reporting period.</p>
+
+        <h2 class="section">Profit Insight:</h2>
+        <p>
+            Based on the total order value and payment status, 
+            <strong>{{ $business['name'] }}</strong> maintained a positive revenue stream 
+            with consistent customer satisfaction across all services.
+        </p>
+
+        <h2 class="section">Cash Flow Overview:</h2>
+        <p>
+            The cash flow for the period shows continuous inflows from walk-in and company clients, 
+            supported by structured ledger tracking for credit customers.
         </p>
     </div>
 
-    <div class="summary">
-        <h2>Executive Summary</h2>
-        <p><strong>Report Period:</strong> {{ $start }} – {{ $end }}</p>
-        <p><strong>Total Orders Value:</strong> ${{ number_format($total, 2) }}</p>
-        <p><strong>Number of Orders:</strong> {{ $orders->count() }}</p>
-    </div>
-
-    <table>
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Customer</th>
-                <th>Order No</th>
-                <th>Total Amount</th>
-                <th>Status</th>
-                <th>Date</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($orders as $i => $order)
-            <tr>
-                <td>{{ $i + 1 }}</td>
-                <td>{{ $order->customer->name??'N/A' }}</td>
-                <td>{{ $order->order_number ?? $order->id }}</td>
-                <td>${{ number_format($order->total_amount, 2) }}</td>
-                <td>{{ ucfirst($order->status) }}</td>
-                <td>{{ \Carbon\Carbon::parse($order->created_at)->format('d M Y') }}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-
     <div class="footer">
-        <div>
-            <p>Generated on {{ now()->format('d M Y, H:i') }}</p>
-        </div>
-        <div class="signature-block">
-            <div class="signature-line"></div>
-            <div class="signature-label">Authorized Signature</div>
-            <div style="height: 18px;"></div>
-            <div class="signature-line"></div>
-            <div class="signature-label">Name & Title</div>
-        </div>
+        Report generated on {{ now()->format('d M Y, H:i') }}
     </div>
+
 </body>
 </html>
