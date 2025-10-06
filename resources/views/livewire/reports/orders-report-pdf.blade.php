@@ -4,23 +4,21 @@
     <meta charset="utf-8">
     <title>Orders & Payments Report</title>
     <style>
-        @page {
+         @page {
             margin: 100px 40px;
         }
-
-        header {
-            position: fixed;
-            top: -80px;
-            left: 0;
-            right: 0;
-            height: 60px;
-            text-align: center;
-            border-bottom: 1px solid #cbd5e1;
-            font-family: 'Segoe UI', sans-serif;
-            font-size: 13px;
+        body {
+            font-family: 'Segoe UI', 'DejaVu Sans', Arial, sans-serif;
+            color: #1e293b;
+            margin: 0;
+            padding: 0;
+            background: #ffffff;
+            font-size: 13.5px;
+            line-height: 1.6;
         }
 
-        footer {
+        /* HEADER */
+         footer {
             position: fixed;
             bottom: -60px;
             left: 0;
@@ -32,19 +30,25 @@
             font-size: 12px;
         }
 
-        body {
-            font-family: 'Segoe UI', 'DejaVu Sans', Arial, sans-serif;
-            color: #1e293b;
-            margin: 0;
-            padding: 0;
-            background: #ffffff;
-            font-size: 13.5px;
-            line-height: 1.6;
+        .header {
+            background-color: #f2e8e5;
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #d1d5db;
+        }
+        .header-left {
+            font-size: 13px;
+            color: #374151;
+        }
+        .header-right img {
+            height: 50px;
         }
 
         .container {
             width: 85%;
-            margin: 60px auto;
+            margin: 40px auto;
         }
 
         h1.title {
@@ -73,20 +77,17 @@
             border-collapse: collapse;
             margin: 10px 0 25px 0;
         }
-
         th, td {
             padding: 10px 12px;
             border: 1px solid #e5e7eb;
             text-align: left;
         }
-
         th {
             background-color: #f3f4f6;
             font-weight: 600;
             text-transform: uppercase;
             font-size: 11px;
         }
-
         tr:nth-child(even) {
             background-color: #fafafa;
         }
@@ -99,32 +100,45 @@
             border-radius: 8px;
             line-height: 1.6;
         }
+        .summary-text p {
+            margin: 0;
+            font-size: 15px;
+        }
+        .footer {
+            width: 85%;
+            margin: 60px auto 40px auto;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 15px;
+            text-align: right;
+            font-size: 12px;
+            color: #6b7280;
+        }
 
-        .signature-section {
+         .signature-section {
             margin-top: 80px;
             text-align: center;
-            left: 0;
         }
 
         .signature-line {
             display: inline-block;
             width: 250px;
             border-bottom: 1px solid #000;
-            margin-bottom: 8px;
+            margin-bottom: 3px;
         }
     </style>
 </head>
 <body>
-    <!-- HEADER -->
-    <header>
-        <strong>{{ $business['name'] }}</strong> — Orders & Payments Report<br>
-        Generated at: {{ now()->format('d M Y, h:i A') }}
-    </header>
-
-    <!-- FOOTER -->
-    <footer>
-        Page {PAGE_NUM} of {PAGE_COUNT} — Confidential Report
+  <footer>
+          Page {{PAGE_NUM}} of {{PAGE_COUNT}} — Confidential Report
     </footer>
+    <!-- HEADER -->
+    <div class="header">
+        <div class="header-left">
+            {{ $business['address'] }} | {{ $business['email'] }} | {{ $business['phone'] }} <br>
+            Generated at: {{ now()->format('d M Y, h:i A') }}
+        </div>
+        
+    </div>
 
     <div class="container">
         <h1 class="title">Orders & Payments Summary</h1>
@@ -137,7 +151,7 @@
         </p>
 
         <h2 class="section">Revenue Analysis:</h2>
-        <div class="summary-text">
+       <div class="summary-text">
             <p>
                 During this period, <strong>{{ config('app.name') }}</strong> recorded total order revenue of 
                 <strong>KES {{ number_format($total, 2) }}</strong>. 
@@ -205,14 +219,21 @@
         </table>
         @endif
 
-        <div class="signature-section">
+        <h2 class="section">Financial Insight:</h2>
+        <p>
+            The above figures reflect steady inflows through M-Pesa and cash payments, 
+            with credit customers actively reducing their outstanding balances. 
+            Walk-in clients accounted for a significant share of immediate revenue.
+        </p>
+    </div>
+
+       <div class="signature-section">
             <div class="signature-line"></div><br>
             <small>Approved by: {{ auth()->user()->name ?? 'Authorized Staff' }}</small>
         </div>
     </div>
-
-    <!-- DOMPDF PAGE SCRIPT -->
-    <script type="text/php">
+  
+   <script type="text/php">
         if (isset($pdf)) {
             $pdf->page_script('
                 $font = $fontMetrics->get_font("Helvetica", "normal");
