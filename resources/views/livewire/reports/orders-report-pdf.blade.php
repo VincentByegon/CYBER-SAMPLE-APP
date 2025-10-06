@@ -127,7 +127,7 @@
 
          .signature-section {
             margin-top: 80px;
-            text-align: center;
+            text-align: left;
         }
 
         .signature-line {
@@ -201,6 +201,9 @@
             </tbody>
         </table>
 
+<p>{{ $ordersSummary }}</p>
+
+
         <h2 class="section">Payments Summary:</h2>
         @if($payments->isEmpty())
             <p>No payments were recorded during this period.</p>
@@ -230,7 +233,7 @@
             </tbody>
         </table>
         @endif
-
+<p>{{ $paymentsSummary }}</p>
         <h2 class="section">Financial Insight:</h2>
         <p>
             The above figures reflect steady inflows through M-Pesa and cash payments, 
