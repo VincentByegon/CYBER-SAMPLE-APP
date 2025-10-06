@@ -143,8 +143,8 @@
         <strong>{{ $business['name'] }}</strong> — Orders & Payments Report<br>
         Generated at: {{ now()->format('d M Y, h:i A') }}
     </header>
-  <footer>
-        Page <span class="page-number"></span> of <span class="total-pages"></span>  — Confidential Report
+   <footer>
+        Page {PAGE_NUM} of {PAGE_COUNT} — Confidential Report
     </footer>
     <!-- HEADER -->
     <div class="header">
@@ -242,8 +242,8 @@
     </div>
 
        <div class="signature-section">
-            <div class="signature-line"></div>
-            <small style="font-size:0.95em; color:#222; margin-top:8px;">Approved by: {{ auth()->user()->name ?? 'Authorized Staff' }}</small>
+            <div class="signature-line"></div><br>
+            <span style="font-size:0.95em; color:#222; margin-top:8px;">Approved by: {{ auth()->user()->name ?? 'Authorized Staff' }}</span>
         </div>
     </div>
   
