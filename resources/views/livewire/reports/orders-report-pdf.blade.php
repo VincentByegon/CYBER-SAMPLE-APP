@@ -20,7 +20,7 @@
         /* HEADER */
          footer {
             position: fixed;
-            top: 0;
+            bottom: -60px;
             left: 0;
             right: 0;
             height: 50px;
@@ -247,13 +247,11 @@
         </div>
     </div>
   
-  <script type="text/php">
-    if (isset($pdf)) {
-        $pdf->page_script('
-            $font = $fontMetrics->get_font("Helvetica", "normal");
-            $pdf->text(520, 820, "Page $PAGE_NUM of $PAGE_COUNT — Confidential Report", $font, 10);
-        ');
-    }
-</script>
+   <script type="text/php">
+        if (isset($pdf)) {
+            $font = $pdf->getFontMetrics()->get_font("helvetica", "bold");
+            $pdf->get_canvas()->page_text(72, 18, "Page {PAGE_NUM} of {PAGE_COUNT}", $font, 10, array(0,0,0));
+        }
+    </script>
 </body>
 </html>
