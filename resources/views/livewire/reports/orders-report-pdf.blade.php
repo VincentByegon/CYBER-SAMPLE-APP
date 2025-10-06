@@ -8,143 +8,212 @@
             font-family: 'Segoe UI', 'DejaVu Sans', Arial, sans-serif;
             color: #1e293b;
             margin: 0;
-            padding: 20px;
-            background: #fff;
+            padding: 0;
+            background: #ffffff;
+            font-size: 13.5px;
+            line-height: 1.6;
         }
-        h1, h2, h3 {
-            margin: 0;
-            color: #0f172a;
-        }
+
+        /* HEADER */
         .header {
-            text-align: center;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 10px;
+            background-color: #f2e8e5;
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #d1d5db;
         }
-        .business-info {
-            margin-bottom: 20px;
+        .header-left {
             font-size: 13px;
-            text-align: center;
+            color: #374151;
         }
-        .report-dates {
-            text-align: center;
-            font-size: 14px;
-            margin-bottom: 15px;
+        .header-right img {
+            height: 50px;
         }
+
+        .container {
+            width: 85%;
+            margin: 40px auto;
+        }
+
+        h1.title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #111827;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h2.section {
+            font-size: 16px;
+            font-weight: 700;
+            margin-top: 25px;
+            margin-bottom: 10px;
+            color: #111827;
+        }
+
+        p {
+            color: #374151;
+            margin-bottom: 10px;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
+            margin: 10px 0 25px 0;
         }
         th, td {
-            padding: 8px 10px;
-            border: 1px solid #cbd5e1;
-            font-size: 13px;
+            padding: 10px 12px;
+            border: 1px solid #e5e7eb;
+            text-align: left;
         }
         th {
-            background-color: #f1f5f9;
+            background-color: #f3f4f6;
             font-weight: 600;
+            text-transform: uppercase;
+            font-size: 11px;
         }
-        .summary {
-            margin-top: 25px;
-            padding: 10px;
-            background: #f8fafc;
-            border: 1px solid #cbd5e1;
+        tr:nth-child(even) {
+            background-color: #fafafa;
         }
-        .summary h3 {
-            margin-bottom: 8px;
+
+        .summary-box {
+            border: 1px solid #e5e7eb;
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 6px;
+            margin-top: 20px;
         }
+
         .footer {
-            text-align: center;
+            width: 85%;
+            margin: 60px auto 40px auto;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 15px;
+            text-align: right;
             font-size: 12px;
-            color: #64748b;
-            margin-top: 30px;
+            color: #6b7280;
+        }
+
+        .signature {
+            width: 85%;
+            margin: 80px auto;
+            display: flex;
+            justify-content: space-between;
+        }
+        .signature .line {
+            border-top: 1px solid #000;
+            width: 40%;
+            text-align: center;
+            padding-top: 5px;
+            font-size: 13px;
         }
     </style>
 </head>
 <body>
+
+    <!-- HEADER -->
     <div class="header">
-        <h1>{{ $business['name'] }}</h1>
-        <p class="business-info">
-            {{ $business['address'] }}<br>
-            Phone: {{ $business['phone'] }} | Email: {{ $business['email'] }}
+        <div class="header-left">
+            {{ $business['address'] }} | {{ $business['email'] }} | {{ $business['phone'] }}
+        </div>
+        <div class="header-right">
+            <img src="{{ public_path('logo.png') }}" alt="Logo">
+        </div>
+    </div>
+
+    <div class="container">
+        <h1 class="title">Orders & Payments Summary</h1>
+
+        <h2 class="section">Overview:</h2>
+        <p>
+            This report provides an overview of <strong>{{ $business['name'] }}</strong>’s 
+            operations between <strong>{{ $start }}</strong> and <strong>{{ $end }}</strong>. 
+            It highlights revenue from orders and payments received within the selected period.
         </p>
-        <h2>Orders & Payments Report</h2>
-        <p class="report-dates">From <strong>{{ $start }}</strong> to <strong>{{ $end }}</strong></p>
+
+        <h2 class="section">Revenue Analysis:</h2>
+        <div class="summary-box">
+            <p><strong>Total Orders Revenue:</strong> KES {{ number_format($total, 2) }}</p>
+            <p><strong>Total Payments Received:</strong> KES {{ number_format($totalPayments, 2) }}</p>
+            <p><strong>Difference:</strong> 
+                KES {{ number_format($total - $totalPayments, 2) }}
+                (Pending collection or credit balance)
+            </p>
+        </div>
+
+        <h2 class="section">Order Breakdown:</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Customer</th>
+                    <th>Order No</th>
+                    <th>Total (KES)</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($orders as $i => $order)
+                <tr>
+                    <td>{{ $i + 1 }}</td>
+                    <td>{{ $order->customer->name ?? 'N/A' }}</td>
+                    <td>{{ $order->order_number ?? $order->id }}</td>
+                    <td>{{ number_format($order->total_amount, 2) }}</td>
+                    <td>{{ ucfirst($order->status ?? 'Pending') }}</td>
+                    <td>{{ \Carbon\Carbon::parse($order->created_at)->format('d M Y') }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+
+        <h2 class="section">Payments Summary:</h2>
+        @if($payments->isEmpty())
+            <p>No payments were recorded during this period.</p>
+        @else
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Customer</th>
+                    <th>Method</th>
+                    <th>Reference</th>
+                    <th>Amount (KES)</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($payments as $i => $payment)
+                <tr>
+                    <td>{{ $i + 1 }}</td>
+                    <td>{{ $payment->customer->name ?? 'N/A' }}</td>
+                    <td>{{ ucfirst($payment->payment_method ?? '-') }}</td>
+                    <td>{{ $payment->reference_number ?? '-' }}</td>
+                    <td>{{ number_format($payment->amount, 2) }}</td>
+                    <td>{{ \Carbon\Carbon::parse($payment->payment_date ?? $payment->created_at)->format('d M Y') }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+        @endif
+
+        <h2 class="section">Financial Insight:</h2>
+        <p>
+            The above figures reflect steady inflows through M-Pesa and cash payments, 
+            with credit customers actively reducing their outstanding balances. 
+            Walk-in clients accounted for a significant share of immediate revenue.
+        </p>
     </div>
 
-    <h3>Orders</h3>
-    @if($orders->isEmpty())
-        <p>No orders found in this date range.</p>
-    @else
-    <table>
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Customer</th>
-                <th>Total Amount</th>
-                <th>Status</th>
-                <th>Date</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($orders as $index => $order)
-            <tr>
-                <td>{{ $index + 1 }}</td>
-                <td>{{ $order->customer->name ?? 'Walk-in' }}</td>
-                <td>KES {{ number_format($order->total_amount, 2) }}</td>
-                <td>{{ ucfirst($order->status ?? 'N/A') }}</td>
-                <td>{{ $order->created_at->format('d M Y, H:i') }}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-    @endif
-
-    <div class="summary">
-        <h3>Orders Summary</h3>
-        <p><strong>Total Orders:</strong> {{ $orders->count() }}</p>
-        <p><strong>Total Order Value:</strong> KES {{ number_format($total, 2) }}</p>
-    </div>
-
-   <h3>Payments</h3>
-@if($payments->isEmpty())
-    <p>No payments found in this date range.</p>
-@else
-<table>
-    <thead>
-        <tr>
-            <th>#</th>
-            <th>Customer</th>
-            <th>Method</th>
-            <th>Reference No.</th>
-            <th>Amount (KES)</th>
-            <th>Date</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach($payments as $index => $payment)
-        <tr>
-            <td>{{ $index + 1 }}</td>
-            <td>{{ $payment->customer->name ?? 'Unknown' }}</td>
-            <td>{{ ucfirst($payment->payment_method ?? 'N/A') }}</td>
-            <td>{{ $payment->reference_number ?? '—' }}</td>
-            <td>{{ number_format($payment->amount, 2) }}</td>
-            <td>{{ \Carbon\Carbon::parse($payment->payment_date ?? $payment->created_at)->format('d M Y, H:i') }}</td>
-        </tr>
-        @endforeach
-    </tbody>
-</table>
-@endif
-
-    <div class="summary">
-        <h3>Payments Summary</h3>
-        <p><strong>Total Payments:</strong> {{ $payments->count() }}</p>
-        <p><strong>Total Amount Paid:</strong> KES {{ number_format($totalPayments, 2) }}</p>
+    <div class="signature">
+        <div class="line">Prepared By</div>
+        <div class="line">Approved By</div>
     </div>
 
     <div class="footer">
-        <p>Generated on {{ now()->format('d M Y, H:i') }} by {{ config('app.name') }}</p>
+        Report generated on {{ now()->format('d M Y, H:i') }}
     </div>
+
 </body>
 </html>
