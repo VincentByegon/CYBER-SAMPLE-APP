@@ -21,7 +21,7 @@
 
     @if($reportUrl)
         <div class="mt-4">
-            <a href="{{ $reportUrl }}" target="_blank" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+            <a href="{{ $reportUrl }}"  class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
                 Download PDF
             </a>
         </div>
