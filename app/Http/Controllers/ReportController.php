@@ -34,6 +34,7 @@ class ReportController extends Controller
         $pdf = Pdf::loadView('livewire.reports.orders-report-pdf', compact(
             'orders', 'payments', 'total', 'totalPayments', 'business', 'start', 'end'
         ));
+        $pdf->setOptions(['enable_php' => true]); 
 
         return $pdf->download('orders_report.pdf');
     }
