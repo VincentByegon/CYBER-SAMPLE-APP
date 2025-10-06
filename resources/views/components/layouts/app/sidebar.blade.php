@@ -44,10 +44,14 @@
     <flux:navlist.item icon="shopping-cart" :href="route('mpesa.transactions')" :current="request()->routeIs('mpesa.*')" wire:navigate>
         {{ __('Mpesa Transactions') }}
     </flux:navlist.item>
+     <flux:navlist.item icon="newspaper" :href="route('reports.orders')" :current="request()->routeIs('reports.*')" wire:navigate>
+        {{ __('Reports') }}
+    </flux:navlist.item>
+
 
    
         <flux:navlist.item icon="shield-check" :href="route('admin.users.index')" :current="request()->routeIs('admin.users.*')" wire:navigate>
-            {{ __('Manage Users') }}
+            {{ __('Users') }}
         </flux:navlist.item>
     @endif
 </flux:navlist.group>

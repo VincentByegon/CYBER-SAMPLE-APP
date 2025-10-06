@@ -2,180 +2,149 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Orders Report</title>
+    <title>Orders & Payments Report</title>
     <style>
         body {
             font-family: 'Segoe UI', 'DejaVu Sans', Arial, sans-serif;
-            background: #ffffff;
             color: #1e293b;
             margin: 0;
-            padding: 0;
-            font-size: 14px;
-            line-height: 1.6;
+            padding: 20px;
+            background: #fff;
         }
-
-        /* HEADER BAR */
-        .top-bar {
-            background-color: #f2e8e5;
-            padding: 18px 50px;
-            color: #1f2937;
+        h1, h2, h3 {
+            margin: 0;
+            color: #0f172a;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+        .business-info {
+            margin-bottom: 20px;
             font-size: 13px;
-            border-bottom: 2px solid #d1d5db;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .top-bar .left {
-            font-weight: 500;
-        }
-        .top-bar .right {
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        /* MAIN WRAPPER */
-        .container {
-            width: 85%;
-            margin: 40px auto;
-        }
-
-        /* TITLE */
-        h1.title {
-            font-size: 24px;
-            font-weight: 700;
-            color: #111827;
-            margin-bottom: 30px;
             text-align: center;
         }
-
-        /* SECTION HEADINGS */
-        h2.section {
-            font-size: 18px;
-            font-weight: 700;
-            color: #111827;
-            margin-top: 25px;
-            margin-bottom: 10px;
+        .report-dates {
+            text-align: center;
+            font-size: 14px;
+            margin-bottom: 15px;
         }
-
-        p {
-            margin-bottom: 12px;
-            color: #374151;
-        }
-
-        strong {
-            color: #111827;
-        }
-
-        /* TABLE */
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 10px 0 25px 0;
+            margin-top: 15px;
         }
-
         th, td {
-            padding: 10px 12px;
-            text-align: left;
-            border: 1px solid #e5e7eb;
+            padding: 8px 10px;
+            border: 1px solid #cbd5e1;
+            font-size: 13px;
         }
-
         th {
-            background-color: #f3f4f6;
+            background-color: #f1f5f9;
             font-weight: 600;
-            text-transform: uppercase;
-            font-size: 12px;
         }
-
-        tr:nth-child(even) {
-            background-color: #fafafa;
+        .summary {
+            margin-top: 25px;
+            padding: 10px;
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
         }
-
-        /* FOOTER */
+        .summary h3 {
+            margin-bottom: 8px;
+        }
         .footer {
-            width: 85%;
-            margin: 40px auto;
-            border-top: 1px solid #e5e7eb;
-            padding-top: 20px;
+            text-align: center;
             font-size: 12px;
-            color: #6b7280;
-            text-align: right;
+            color: #64748b;
+            margin-top: 30px;
         }
     </style>
 </head>
 <body>
-
-    <!-- TOP CONTACT BAR -->
-    <div class="top-bar">
-        <div class="left">
-            {{ $business['address'] }} | {{ $business['email'] }} | {{ $business['phone'] }}
-        </div>
-        <div class="right">
-            {{ strtoupper($business['name']) }}
-        </div>
+    <div class="header">
+        <h1>{{ $business['name'] }}</h1>
+        <p class="business-info">
+            {{ $business['address'] }}<br>
+            Phone: {{ $business['phone'] }} | Email: {{ $business['email'] }}
+        </p>
+        <h2>Orders & Payments Report</h2>
+        <p class="report-dates">From <strong>{{ $start }}</strong> to <strong>{{ $end }}</strong></p>
     </div>
 
-    <div class="container">
-        <h1 class="title">Sample Orders Summary</h1>
+    <h3>Orders</h3>
+    @if($orders->isEmpty())
+        <p>No orders found in this date range.</p>
+    @else
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Customer</th>
+                <th>Total Amount</th>
+                <th>Status</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($orders as $index => $order)
+            <tr>
+                <td>{{ $index + 1 }}</td>
+                <td>{{ $order->customer->name ?? 'Walk-in' }}</td>
+                <td>KES {{ number_format($order->total_amount, 2) }}</td>
+                <td>{{ ucfirst($order->status ?? 'N/A') }}</td>
+                <td>{{ $order->created_at->format('d M Y, H:i') }}</td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+    @endif
 
-        <h2 class="section">Overview:</h2>
-        <p>
-            This report provides an overview of the company’s orders performance between 
-            <strong>{{ $start }}</strong> and <strong>{{ $end }}</strong>. 
-            It highlights order totals, revenue trends, and payment statuses to help assess operational performance.
-        </p>
+    <div class="summary">
+        <h3>Orders Summary</h3>
+        <p><strong>Total Orders:</strong> {{ $orders->count() }}</p>
+        <p><strong>Total Order Value:</strong> KES {{ number_format($total, 2) }}</p>
+    </div>
 
-        <h2 class="section">Revenue Analysis:</h2>
-        <p>
-            During this period, <strong>{{ $business['name'] }}</strong> recorded 
-            total order revenue of <strong>${{ number_format($total, 2) }}</strong>.
-            The increase reflects growth in customer engagement and efficient service delivery.
-        </p>
+   <h3>Payments</h3>
+@if($payments->isEmpty())
+    <p>No payments found in this date range.</p>
+@else
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Customer</th>
+            <th>Method</th>
+            <th>Reference No.</th>
+            <th>Amount (KES)</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach($payments as $index => $payment)
+        <tr>
+            <td>{{ $index + 1 }}</td>
+            <td>{{ $payment->customer->name ?? 'Unknown' }}</td>
+            <td>{{ ucfirst($payment->payment_method ?? 'N/A') }}</td>
+            <td>{{ $payment->reference_number ?? '—' }}</td>
+            <td>{{ number_format($payment->amount, 2) }}</td>
+            <td>{{ \Carbon\Carbon::parse($payment->payment_date ?? $payment->created_at)->format('d M Y, H:i') }}</td>
+        </tr>
+        @endforeach
+    </tbody>
+</table>
+@endif
 
-        <h2 class="section">Order Breakdown:</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Customer</th>
-                    <th>Order No</th>
-                    <th>Total Amount ($)</th>
-                    <th>Status</th>
-                    <th>Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($orders as $i => $order)
-                <tr>
-                    <td>{{ $i + 1 }}</td>
-                    <td>{{ $order->customer->name ?? 'N/A' }}</td>
-                    <td>{{ $order->order_number ?? $order->id }}</td>
-                    <td>{{ number_format($order->total_amount, 2) }}</td>
-                    <td>{{ ucfirst($order->status) }}</td>
-                    <td>{{ \Carbon\Carbon::parse($order->created_at)->format('d M Y') }}</td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-
-        <p><em>Note:</em> The above table provides a breakdown of all orders recorded during the reporting period.</p>
-
-        <h2 class="section">Profit Insight:</h2>
-        <p>
-            Based on the total order value and payment status, 
-            <strong>{{ $business['name'] }}</strong> maintained a positive revenue stream 
-            with consistent customer satisfaction across all services.
-        </p>
-
-        <h2 class="section">Cash Flow Overview:</h2>
-        <p>
-            The cash flow for the period shows continuous inflows from walk-in and company clients, 
-            supported by structured ledger tracking for credit customers.
-        </p>
+    <div class="summary">
+        <h3>Payments Summary</h3>
+        <p><strong>Total Payments:</strong> {{ $payments->count() }}</p>
+        <p><strong>Total Amount Paid:</strong> KES {{ number_format($totalPayments, 2) }}</p>
     </div>
 
     <div class="footer">
-        Report generated on {{ now()->format('d M Y, H:i') }}
+        <p>Generated on {{ now()->format('d M Y, H:i') }} by {{ config('app.name') }}</p>
     </div>
-
 </body>
 </html>

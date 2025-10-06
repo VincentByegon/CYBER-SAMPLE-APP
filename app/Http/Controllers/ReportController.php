@@ -1,8 +1,10 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Order;
+use App\Models\Payment; // ✅ You forgot this import
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class ReportController extends Controller
@@ -12,17 +14,27 @@ class ReportController extends Controller
         $start = $request->query('start_date');
         $end = $request->query('end_date');
 
+        // ✅ Fetch orders and payments between given dates
         $orders = Order::whereBetween('created_at', [$start, $end])->get();
-        $total = $orders->sum('total_amount'); // Adjust field name if needed
+        $payments = Payment::whereBetween('created_at', [$start, $end])->get();
 
+        // ✅ Calculate totals
+        $total = $orders->sum('total_amount'); // Field name must match your database column
+        $totalPayments = $payments->sum('amount');
+
+        // ✅ Business info (you can later pull this from settings table)
         $business = [
-            'name' => 'Your Business Name',
-            'address' => 'Business Address',
-            'phone' => 'Business Phone',
-            'email' => 'Business Email',
+            'name' => config('app.name', 'Your Business Name'),
+            'address' => 'Kericho, Nairobi-Kisumu Highway',
+            'phone' => '0712 345678',
+            'email' => 'info@bigtunescyber.co.ke',
         ];
 
-        $pdf = Pdf::loadView('livewire.reports.orders-report-pdf', compact('orders', 'total', 'business', 'start', 'end'));
+        // ✅ Generate PDF
+        $pdf = Pdf::loadView('livewire.reports.orders-report-pdf', compact(
+            'orders', 'payments', 'total', 'totalPayments', 'business', 'start', 'end'
+        ));
+
         return $pdf->download('orders_report.pdf');
     }
 }
