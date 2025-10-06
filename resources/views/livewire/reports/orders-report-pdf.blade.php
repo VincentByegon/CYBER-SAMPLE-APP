@@ -15,6 +15,18 @@
         }
 
         /* HEADER */
+         footer {
+            position: fixed;
+            bottom: -60px;
+            left: 0;
+            right: 0;
+            height: 50px;
+            text-align: center;
+            border-top: 1px solid #cbd5e1;
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 12px;
+        }
+
         .header {
             background-color: #f2e8e5;
             padding: 20px 50px;
@@ -77,14 +89,18 @@
             background-color: #fafafa;
         }
 
-        .summary-box {
-            border: 1px solid #e5e7eb;
-            padding: 15px;
-            background: #f9fafb;
-            border-radius: 6px;
-            margin-top: 20px;
+        .summary-text {
+            background: #f1f5f9;
+            border-left: 5px solid #2563eb;
+            padding: 20px;
+            margin-top: 30px;
+            border-radius: 8px;
+            line-height: 1.6;
         }
-
+        .summary-text p {
+            margin: 0;
+            font-size: 15px;
+        }
         .footer {
             width: 85%;
             margin: 60px auto 40px auto;
@@ -95,31 +111,30 @@
             color: #6b7280;
         }
 
-        .signature {
-            width: 85%;
-            margin: 80px auto;
-            display: flex;
-            justify-content: space-between;
-        }
-        .signature .line {
-            border-top: 1px solid #000;
-            width: 40%;
+         .signature-section {
+            margin-top: 80px;
             text-align: center;
-            padding-top: 5px;
-            font-size: 13px;
+        }
+
+        .signature-line {
+            display: inline-block;
+            width: 250px;
+            border-bottom: 1px solid #000;
+            margin-bottom: 8px;
         }
     </style>
 </head>
 <body>
-
+  <footer>
+        Page <span class="pagenum"></span> — Confidential Report
+        <p>Generated at: {{ now()->format('d M Y, h:i A') }}</p>
+    </footer>
     <!-- HEADER -->
     <div class="header">
         <div class="header-left">
             {{ $business['address'] }} | {{ $business['email'] }} | {{ $business['phone'] }}
         </div>
-        <div class="header-right">
-            <img src="{{ public_path('logo.png') }}" alt="Logo">
-        </div>
+        
     </div>
 
     <div class="container">
@@ -133,12 +148,15 @@
         </p>
 
         <h2 class="section">Revenue Analysis:</h2>
-        <div class="summary-box">
-            <p><strong>Total Orders Revenue:</strong> KES {{ number_format($total, 2) }}</p>
-            <p><strong>Total Payments Received:</strong> KES {{ number_format($totalPayments, 2) }}</p>
-            <p><strong>Difference:</strong> 
-                KES {{ number_format($total - $totalPayments, 2) }}
-                (Pending collection or credit balance)
+       <div class="summary-text">
+            <p>
+                During this period, <strong>{{ config('app.name') }}</strong> recorded total order revenue of 
+                <strong>KES {{ number_format($total, 2) }}</strong>. 
+                Payments received during the same period amounted to 
+                <strong>KES {{ number_format($totalPayments, 2) }}</strong>, 
+                resulting in a balance of 
+                <strong>KES {{ number_format($total - $totalPayments, 2) }}</strong>. 
+                This difference represents pending collections or outstanding credit from customers.
             </p>
         </div>
 
@@ -206,14 +224,23 @@
         </p>
     </div>
 
-    <div class="signature">
-        <div class="line">Prepared By</div>
-        <div class="line">Approved By</div>
-    </div>
+      <div class="signature-section">
+            <div class="signature-line"></div><br>
+            <small>Approved by: {{ auth()->user()->name ?? 'Authorized Staff' }}</small>
+        </div>
 
     <div class="footer">
         Report generated on {{ now()->format('d M Y, H:i') }}
     </div>
-
+  <script type="text/php">
+        if ( isset($pdf) ) {
+            $pdf->page_script('
+                if ($PAGE_COUNT > 1) {
+                    $font = $fontMetrics->get_font("Helvetica", "normal");
+                    $pdf->text(520, 810, "Page $PAGE_NUM of $PAGE_COUNT", $font, 10);
+                }
+            ');
+        }
+    </script>
 </body>
 </html>
