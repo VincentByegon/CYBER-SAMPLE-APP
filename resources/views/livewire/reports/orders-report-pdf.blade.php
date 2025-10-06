@@ -10,7 +10,6 @@
         body {
             font-family: 'Segoe UI', 'DejaVu Sans', Arial, sans-serif;
             color: #1e293b;    
-            top: -80px;
             margin: 0;
             padding: 0;
             background: #ffffff;
@@ -22,6 +21,7 @@
          footer {
             position: fixed;
             bottom: -60px;
+             top: -80px;
             left: 0;
             right: 0;
             height: 50px;
