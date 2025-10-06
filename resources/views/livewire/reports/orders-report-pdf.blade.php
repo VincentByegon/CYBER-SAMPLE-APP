@@ -129,7 +129,7 @@
 </head>
 <body>
   <footer>
-          Page {{PAGE_NUM}} of {{PAGE_COUNT}} — Confidential Report
+        Page <span class="page-number"></span> of <span class="total-pages"></span>  — Confidential Report
     </footer>
     <!-- HEADER -->
     <div class="header">
@@ -233,13 +233,13 @@
         </div>
     </div>
   
-   <script type="text/php">
-        if (isset($pdf)) {
-            $pdf->page_script('
-                $font = $fontMetrics->get_font("Helvetica", "normal");
-                $pdf->text(500, 820, "Page $PAGE_NUM of $PAGE_COUNT", $font, 10);
-            ');
-        }
-    </script>
+  <script type="text/php">
+    if (isset($pdf)) {
+        $pdf->page_script('
+            $font = $fontMetrics->get_font("Helvetica", "normal");
+            $pdf->text(520, 820, "Page $PAGE_NUM of $PAGE_COUNT — Confidential Report", $font, 10);
+        ');
+    }
+</script>
 </body>
 </html>
