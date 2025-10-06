@@ -21,7 +21,6 @@
          footer {
             position: fixed;
             bottom: -60px;
-             top: -80px;
             left: 0;
             right: 0;
             height: 50px;
@@ -34,6 +33,7 @@
         .header {
             background-color: #f2e8e5;
             padding: 20px 50px;
+             top: -80px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -229,7 +229,7 @@
     </div>
 
        <div class="signature-section">
-            <div class="signature-line"></div><br>
+            <div class="signature-line"></div>
             <small>Approved by: {{ auth()->user()->name ?? 'Authorized Staff' }}</small>
         </div>
     </div>
