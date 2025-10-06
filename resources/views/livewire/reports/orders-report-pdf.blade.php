@@ -9,7 +9,8 @@
         }
         body {
             font-family: 'Segoe UI', 'DejaVu Sans', Arial, sans-serif;
-            color: #1e293b;
+            color: #1e293b;    
+            top: -80px;
             margin: 0;
             padding: 0;
             background: #ffffff;
@@ -134,7 +135,7 @@
     <!-- HEADER -->
     <div class="header">
         <div class="header-left">
-            {{ $business['address'] }} | {{ $business['email'] }} | {{ $business['phone'] }} <br>
+             <strong>{{ $business['name'] }}</strong> | {{ $business['address'] }} | {{ $business['email'] }} | {{ $business['phone'] }} <br>
             Generated at: {{ now()->format('d M Y, h:i A') }}
         </div>
         
