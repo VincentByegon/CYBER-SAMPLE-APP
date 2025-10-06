@@ -143,9 +143,7 @@
         <strong>{{ $business['name'] }}</strong> — Orders & Payments Report<br>
         Generated at: {{ now()->format('d M Y, h:i A') }}
     </header>
-   <footer>
-        Page {PAGE_NUM} of {PAGE_COUNT} — Confidential Report
-    </footer>
+  
     <!-- HEADER -->
     <div class="header">
         <div class="header-left">
@@ -250,7 +248,7 @@
   <script type="text/php">
         if (isset($pdf)) {
             $pdf->page_script('
-                $text = __("Page :pageNum/:pageCount", ["pageNum" => $PAGE_NUM, "pageCount" => $PAGE_COUNT]);
+                $text = __("Page :pageNum of :pageCount — Confidential Report", ["pageNum" => $PAGE_NUM, "pageCount" => $PAGE_COUNT]);
                 $font = null;
                 $size = 9;
                 $color = array(0,0,0);
