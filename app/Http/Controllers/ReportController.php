@@ -66,7 +66,7 @@ class ReportController extends Controller
 
             return trim($response['choices'][0]['message']['content']);
         } catch (\Exception $e) {
-            return "AI summary unavailable (error generating summary).";
+            return "AI summary unavailable (".$e->getMessage().").";
         }
     }
 }
