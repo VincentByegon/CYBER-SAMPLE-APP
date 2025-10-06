@@ -201,7 +201,7 @@
             </tbody>
         </table>
 
-<p>{{ $ordersSummary }}</p>
+<p> {{ $aiOrdersSummary ?? '⚠️ AI summary unavailable.' }}</p>
 
 
         <h2 class="section">Payments Summary:</h2>
@@ -233,7 +233,7 @@
             </tbody>
         </table>
         @endif
-<p>{{ $paymentsSummary }}</p>
+<p> {{ $aiPaymentsSummary ?? '⚠️ AI summary unavailable.' }}</p>
         <h2 class="section">Financial Insight:</h2>
         <p>
             The above figures reflect steady inflows through M-Pesa and cash payments, 

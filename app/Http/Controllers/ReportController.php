@@ -7,6 +7,8 @@ use App\Models\Order;
 use App\Models\Payment;
 use Barryvdh\DomPDF\Facade\Pdf;
 use OpenAI\Laravel\Facades\OpenAI;
+use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class ReportController extends Controller
 {
@@ -15,15 +17,11 @@ class ReportController extends Controller
         $start = $request->query('start_date');
         $end = $request->query('end_date');
 
-        $orders = Order::whereBetween('created_at', [$start, $end])->get();
-        $payments = Payment::whereBetween('created_at', [$start, $end])->get();
-
+        $orders = Order::whereBetween('created_at', [$start, $end])->with('customer')->get();
         $total = $orders->sum('total_amount');
-        $totalPayments = $payments->sum('amount');
 
-        // 🔹 Generate summaries using AI
-        $ordersSummary = $this->generateAISummary("Orders", $orders, $total);
-        $paymentsSummary = $this->generateAISummary("Payments", $payments, $totalPayments);
+        $payments = Payment::whereBetween('created_at', [$start, $end])->with('customer')->get();
+        $totalPayments = $payments->sum('amount');
 
         $business = [
             'name' => 'Your Business Name',
@@ -32,41 +30,106 @@ class ReportController extends Controller
             'email' => 'Business Email',
         ];
 
+        // --- AI SUMMARY SECTION ---
+        $aiSummary = $this->generateAISummary($orders, $payments, $total, $totalPayments);
+
         $pdf = Pdf::loadView('livewire.reports.orders-report-pdf', compact(
-            'orders', 'payments', 'total', 'totalPayments',
-            'business', 'start', 'end', 'ordersSummary', 'paymentsSummary'
+            'orders',
+            'payments',
+            'total',
+            'totalPayments',
+            'start',
+            'end',
+            'business',
+            'aiSummary'
         ));
 
         return $pdf->download('orders_report.pdf');
     }
 
-    private function generateAISummary($type, $data, $total)
-    {
-        if ($data->isEmpty()) {
-            return "No {$type} data was recorded in this period.";
-        }
+    /**
+     * Generate AI Summary with retry logic & graceful fallback
+     */
 
-        // Prepare a short description for AI
-        $sampleData = $data->take(5)->map(function ($item) {
-            return $item->toArray();
-        })->toJson();
 
-        $prompt = "You are an accountant assistant. Write a concise, human-like business summary (3 sentences max)
-        for the {$type} data below. Mention trends, totals, and what they may indicate.
-        Data sample: {$sampleData}. Total amount: {$total} KES.";
+protected function generateAISummary($orders, $payments, $total, $totalPayments)
+{
+    $attempts = 0;
+    $maxAttempts = 3;
 
+    // Convert to collections (in case arrays are passed)
+    $ordersCollection = collect($orders);
+    $paymentsCollection = collect($payments);
+
+    // Format recent orders (limit to 10 for brevity)
+    $ordersText = $ordersCollection
+        ->take(10)
+        ->map(function ($o) {
+            $customerName = optional($o->customer)->name ?? 'N/A';
+            $total = isset($o->total_amount) ? number_format((float)$o->total_amount, 2) : '0.00';
+            $status = $o->status ?? 'unknown';
+            $date = $o->created_at ? Carbon::parse($o->created_at)->format('d M Y') : 'unknown date';
+
+            return "{$customerName} - KES {$total} ({$status}) on {$date}";
+        })
+        ->join("\n");
+
+    // Format recent payments (limit to 10)
+    $paymentsText = $paymentsCollection
+        ->take(10)
+        ->map(function ($p) {
+            $payer = optional($p->customer)->name ?? 'N/A';
+            $amount = isset($p->amount) ? number_format((float)$p->amount, 2) : '0.00';
+            $method = $p->method ?? 'unknown';
+            $date = $p->created_at ? Carbon::parse($p->created_at)->format('d M Y') : 'unknown date';
+
+            return "{$payer} paid KES {$amount} via {$method} on {$date}";
+        })
+        ->join("\n");
+
+    // Construct AI prompt
+    $prompt = "
+You are an AI financial assistant. Summarize the business performance based on the following data.
+
+Orders:
+$ordersText
+
+Payments:
+$paymentsText
+
+Total order revenue: KES $total
+Total payments received: KES $totalPayments
+
+Provide a short, insightful paragraph summarizing financial health and trends (no bullet points, just text).
+";
+
+    // Attempt AI call with retry logic
+    while ($attempts < $maxAttempts) {
         try {
             $response = OpenAI::chat()->create([
                 'model' => 'gpt-4o-mini',
                 'messages' => [
-                    ['role' => 'system', 'content' => 'You summarize financial reports clearly and professionally.'],
+                    ['role' => 'system', 'content' => 'You are a financial analyst who writes concise, insightful summaries.'],
                     ['role' => 'user', 'content' => $prompt],
                 ],
+                'temperature' => 0.7,
             ]);
 
             return trim($response['choices'][0]['message']['content']);
         } catch (\Exception $e) {
-            return "AI summary unavailable (".$e->getMessage().").";
+            $attempts++;
+
+            if (str_contains($e->getMessage(), 'rate limit')) {
+                sleep(2); // wait before retrying
+                continue;
+            }
+
+            Log::error('AI Summary Error: ' . $e->getMessage());
+            return '⚠️ AI summary unavailable (' . $e->getMessage() . ')';
         }
     }
+
+    return '⚠️ AI summary temporarily unavailable (rate limit exceeded, please try again later).';
+}
+
 }
