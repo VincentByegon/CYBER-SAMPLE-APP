@@ -20,7 +20,7 @@
         /* HEADER */
          footer {
             position: fixed;
-            bottom: -60px;
+            top: 0;
             left: 0;
             right: 0;
             height: 50px;
@@ -29,7 +29,17 @@
             font-family: 'Segoe UI', sans-serif;
             font-size: 12px;
         }
-
+ header {
+            position: fixed;
+            top: -80px;
+            left: 0;
+            right: 0;
+            height: 60px;
+            text-align: center;
+            border-bottom: 1px solid #cbd5e1;
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 13px;
+        }
         .header {
             background-color: #f2e8e5;
             padding: 20px 50px;
@@ -129,14 +139,17 @@
     </style>
 </head>
 <body>
+    <header>
+        <strong>{{ $business['name'] }}</strong> — Orders & Payments Report<br>
+        Generated at: {{ now()->format('d M Y, h:i A') }}
+    </header>
   <footer>
         Page <span class="page-number"></span> of <span class="total-pages"></span>  — Confidential Report
     </footer>
     <!-- HEADER -->
     <div class="header">
         <div class="header-left">
-             <strong>{{ $business['name'] }}</strong> | {{ $business['address'] }} | {{ $business['email'] }} | {{ $business['phone'] }} <br>
-            Generated at: {{ now()->format('d M Y, h:i A') }}
+             <strong>{{ $business['name'] }}</strong> | {{ $business['address'] }} | {{ $business['email'] }} | {{ $business['phone'] }} 
         </div>
         
     </div>
@@ -230,7 +243,7 @@
 
        <div class="signature-section">
             <div class="signature-line"></div>
-            <small>Approved by: {{ auth()->user()->name ?? 'Authorized Staff' }}</small>
+            <small style="font-size:0.95em; color:#222; margin-top:8px;">Approved by: {{ auth()->user()->name ?? 'Authorized Staff' }}</small>
         </div>
     </div>
   
