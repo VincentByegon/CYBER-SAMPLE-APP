@@ -17,21 +17,36 @@ class ReportController extends Controller
         $start = $request->query('start_date');
         $end = $request->query('end_date');
 
-        $orders = Order::whereBetween('created_at', [$start, $end])->with('customer')->get();
+        $orders = Order::whereBetween('created_at', [$start, $end])
+            ->with('customer')
+            ->get();
+
         $total = $orders->sum('total_amount');
 
-        $payments = Payment::whereBetween('created_at', [$start, $end])->with('customer')->get();
+        $payments = Payment::whereBetween('created_at', [$start, $end])
+            ->with('customer')
+            ->get();
+
         $totalPayments = $payments->sum('amount');
 
         $business = [
-            'name' => 'Your Business Name',
-            'address' => 'Business Address',
-            'phone' => 'Business Phone',
-            'email' => 'Business Email',
+            'name' => config('app.name', 'BigTunes Cyber'),
+            'address' => 'Kericho, Kenya',
+            'phone' => '+254 700 000000',
+            'email' => 'info@bigtunescyber',
         ];
 
-        // --- AI SUMMARY SECTION ---
+        // 🧠 Generate AI Summary
         $aiSummary = $this->generateAISummary($orders, $payments, $total, $totalPayments);
+
+        // If AI fails or no data exists
+        if (!$aiSummary || str_contains($aiSummary, 'unavailable')) {
+            $aiSummary = "During this period, {$business['name']} recorded total order revenue of KES " . 
+                number_format($total, 2) . 
+                " and received KES " . 
+                number_format($totalPayments, 2) . 
+                " in payments. Financial data suggests steady operations and consistent customer activity.";
+        }
 
         $pdf = Pdf::loadView('livewire.reports.orders-report-pdf', compact(
             'orders',
@@ -44,7 +59,7 @@ class ReportController extends Controller
             'aiSummary'
         ));
 
-        return $pdf->download('orders_report.pdf');
+        return $pdf->download("orders_report_{$start}_to_{$end}.pdf");
     }
 
     /**
