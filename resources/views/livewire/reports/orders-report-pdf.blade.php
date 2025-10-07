@@ -127,7 +127,7 @@
 
          .signature-section {
             margin-top: 80px;
-            text-align: left;
+            text-align: center;
         }
 
         .signature-line {
@@ -233,7 +233,8 @@
             </tbody>
         </table>
         @endif
-<p> {{  $aiSummary  }}</p>
+        <h2 class="section">Summary Breakdown:</h2>
+        <p> {{  $aiSummary  }}</p>
         <h2 class="section">Financial Insight:</h2>
         <p>
             The above figures reflect steady inflows through M-Pesa and cash payments, 

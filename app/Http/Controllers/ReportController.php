@@ -58,7 +58,8 @@ class ReportController extends Controller
             'business',
             'aiSummary'
         ));
-
+        
+          $pdf->setOptions(['enable_php' => true]); 
         return $pdf->download("orders_report_{$start}_to_{$end}.pdf");
     }
 
@@ -104,7 +105,7 @@ protected function generateAISummary($orders, $payments, $total, $totalPayments)
 
     // Construct AI prompt
     $prompt = "
-You are an AI financial assistant. Summarize the business performance based on the following data.
+You are an AI financial and accounting assistant. Summarize the business performance based on the following data.
 
 Orders:
 $ordersText
@@ -115,7 +116,7 @@ $paymentsText
 Total order revenue: KES $total
 Total payments received: KES $totalPayments
 
-Provide a short, insightful paragraph summarizing financial health and trends (no bullet points, just text).
+Provide an insightful paragraph summarizing financial health and trends (no bullet points, just text and make bold necessary figures).
 ";
 
     // Attempt AI call with retry logic
