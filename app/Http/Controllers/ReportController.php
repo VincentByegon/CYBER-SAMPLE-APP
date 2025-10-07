@@ -104,8 +104,9 @@ protected function generateAISummary($orders, $payments, $total, $totalPayments)
         ->join("\n");
 
     // Construct AI prompt
-    $prompt = "
-You are an AI financial and accounting assistant. Summarize the business performance based on the following data.
+  $prompt = "
+You are an expert AI financial and accounting analyst for a small to medium-sized business in Kenya.
+Analyze the company’s financial performance using the data below.
 
 Orders:
 $ordersText
@@ -116,8 +117,17 @@ $paymentsText
 Total order revenue: KES $total
 Total payments received: KES $totalPayments
 
-Provide an insightful paragraph summarizing financial health and trends (no bullet points, just text and make bold necessary figures).
+Write a concise but insightful financial summary (about 4–6 sentences).  
+Your response should:
+- Emphasize financial trends, liquidity, and cash flow stability.
+- Compare total order revenue vs. payments received.
+- Comment on customer payment behavior (prompt vs delayed).
+- Mention potential risks or opportunities inferred from the data.
+- Highlight all monetary figures in **bold** (use markdown bold formatting).
+
+Do NOT use bullet points or lists — only a single, fluent paragraph written in a professional, business tone.
 ";
+
 
     // Attempt AI call with retry logic
     while ($attempts < $maxAttempts) {

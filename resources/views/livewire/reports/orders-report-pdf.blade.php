@@ -176,6 +176,9 @@
         </div>
 
         <h2 class="section">Order Breakdown:</h2>
+         @if($orders->isEmpty())
+            <p>No Orders were recorded during this period.</p>
+        @else
         <table>
             <thead>
                 <tr>
@@ -200,6 +203,7 @@
                 @endforeach
             </tbody>
         </table>
+        @endif
 
 
 
@@ -232,7 +236,7 @@
                 @endforeach
             </tbody>
         </table>
-        @endif
+        
         <h2 class="section">Summary Breakdown:</h2>
         <p> {{  $aiSummary  }}</p>
         <h2 class="section">Financial Insight:</h2>
@@ -248,7 +252,7 @@
             <span style="font-size:0.95em; color:#222; margin-top:8px;">Approved by: {{ auth()->user()->name ?? 'Authorized Staff' }}</span>
         </div>
     </div>
-  
+  @endif
   <script type="text/php">
         if (isset($pdf)) {
             $pdf->page_script('
